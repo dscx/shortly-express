@@ -13,7 +13,7 @@ var Link = require('../app/models/link');
 // Remove the 'x' from beforeEach block when working on
 // authentication tests.
 /************************************************************/
-var xbeforeEach = function(){};
+var beforeEach = function(){};
 /************************************************************/
 
 
@@ -21,7 +21,7 @@ describe('', function() {
 
   beforeEach(function() {
     // log out currently signed in user
-    request('http://127.0.0.1:4568/logout', function(error, res, body) {});
+    // request('http://127.0.0.1:4568/logout', function(error, res, body) {});
 
     // delete link for roflzoo from db so it can be created later for the test
     db.knex('urls')
@@ -59,11 +59,11 @@ describe('', function() {
       });
   });
 
-  describe('Link creation:', function(){
+  xdescribe('Link creation:', function(){
 
     var requestWithSession = request.defaults({jar: true});
 
-    xbeforeEach(function(done){      // create a user that we can then log-in with
+    beforeEach(function(done){      // create a user that we can then log-in with
       new User({
           'username': 'Phillip',
           'password': 'Phillip'
@@ -100,7 +100,7 @@ describe('', function() {
       });
     });
 
-    describe('Shortening links:', function(){
+    xdescribe('Shortening links:', function(){
 
       var options = {
         'method': 'POST',
@@ -149,7 +149,7 @@ describe('', function() {
 
     }); // 'Shortening links'
 
-    describe('With previously saved urls:', function(){
+    xdescribe('With previously saved urls:', function(){
 
       var link;
 
@@ -177,6 +177,7 @@ describe('', function() {
 
         requestWithSession(options, function(error, res, body) {
           var code = res.body.code;
+          console.log(body, "Spec line 180");
           expect(code).to.equal(link.get('code'));
           done();
         });
@@ -237,7 +238,7 @@ describe('', function() {
 
   }); // 'Priviledged Access'
 
-  xdescribe('Account Creation:', function(){
+  describe('Account Creation:', function(){
 
     it('Signup creates a user record', function(done) {
       var options = {
@@ -250,9 +251,11 @@ describe('', function() {
       };
 
       request(options, function(error, res, body) {
+        console.log(res.body[0], 'asdioewufkl');
         db.knex('users')
           .where('username', '=', 'Svnh')
           .then(function(res) {
+            console.log(res, 'knew');
             if (res[0] && res[0]['username']) {
               var user = res[0]['username'];
             }

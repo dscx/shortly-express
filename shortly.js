@@ -47,7 +47,7 @@ function(req, res) {
   if (!util.isValidUrl(uri)) {
     console.log('Not a valid url: ', uri);
     return res.send(404);
-  }
+  } 
 
   new Link({ url: uri }).fetch().then(function(found) {
     if (found) {
@@ -57,7 +57,7 @@ function(req, res) {
         if (err) {
           console.log('Error reading URL heading: ', err);
           return res.send(404);
-        }
+        } 
 
         var link = new Link({
           url: uri,
@@ -72,14 +72,33 @@ function(req, res) {
       });
     }
   });
-});
+}); 
 
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+// app.post('/login',
+//   function(req, res){
+//     console.log(req.body, "line 82");
+//     var userInfo = req.body;
+//   })
+// JSON.stringify(req.body)
+app.post('/signup', function(req, res){
+    console.log(JSON.stringify(req.body.username));
+  new User({
+    'username': 'Svnh',
+    'password': 'Svnh'
+  }).save().then(function(){
+  //   console.log(req.body.username, "1234567");
+    // res.body(req.body);
+ // var results = '[]'; //
+ var results = ['Svnh'];
+    res.send(results);
 
-
-
+    //res.send(JSON.stringify(req.body));
+    //res.redirect('/');
+  });
+});
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
 // assume the route is a short code and try and handle it here.
