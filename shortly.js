@@ -86,16 +86,11 @@ function(req, res) {
 app.post('/signup', function(req, res){
     console.log(JSON.stringify(req.body.username));
   new User({
-    'username': 'Svnh',
-    'password': 'Svnh'
+    'username': req.body.username,
+    'password': req.body.username
   }).save().then(function(){
-  //   console.log(req.body.username, "1234567");
-    // res.body(req.body);
- // var results = '[]'; //
- var results = ['Svnh'];
-    res.send(results);
-
-    //res.send(JSON.stringify(req.body));
+    res.location('/');
+    res.send(req.body);
     //res.redirect('/');
   });
 });
