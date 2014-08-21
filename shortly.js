@@ -77,9 +77,10 @@ function(req, res) {
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+
 app.post('/login',
   function(req, res){
-    new User({username:req.body.username, password:req.body.password}).fetch()
+  new User({username:req.body.username, password:req.body.password}).fetch()
     .then(function(found){
       if(found){
         res.location('/');
@@ -93,14 +94,20 @@ app.post('/login',
 
 
 app.post('/signup', function(req, res){
-    console.log(JSON.stringify(req.body.username));
-  new User({
-    'username': req.body.username,
-    'password': req.body.username
-  }).save().then(function(){
-    res.location('/');
-    res.send(req.body);
-    //res.redirect('/');
+  new User({username:req.body.username, password:req.body.password}).fetch().then(function(found){
+    if(!found){
+       new User({
+        'username': req.body.username,
+        'password': req.body.username
+       }).save().then(function(err){
+        if(err){console.log(err);}
+        res.location('/');
+        res.send(req.body);
+       });
+    } else {
+        res.location('/');
+        res.send(req.body);
+    }
   });
 });
 /************************************************************/
