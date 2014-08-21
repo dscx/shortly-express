@@ -7,8 +7,6 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
-
-
 var db = require('./app/config');
 var Users = require('./app/collections/users');
 var User = require('./app/models/user');
@@ -118,9 +116,12 @@ app.post('/links', function(req, res) {
 
 app.post('/login',
   function(req, res){
-  new User({username:req.body.username, password:req.body.password}).fetch()
+
+  new User({username:req.body.username}).fetch()
     .then(function(found){
       if(found){
+        console.log(found);
+         console.log(User.validPassword(req.body.password, found.get('password')));
         req.session.regenerate(function(){
           req.session.user = req.body.username;
           res.location('/');
@@ -135,16 +136,9 @@ app.post('/login',
 
 
 app.post('/signup', function(req, res){
-  new User({username:req.body.username, password:req.body.password}).fetch().then(function(found){
+  new User({username:req.body.username}).fetch().then(function(found){
     if(!found){
-       new User({
-        'username': req.body.username,
-        'password': req.body.username
-       }).save().then(function(err){
-        if(err){console.log(err);}
-        res.location('/');
-        res.send(req.body);
-       });
+        util.addUser(req, res);
     } else {
         res.location('/');
         res.send(req.body);
