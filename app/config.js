@@ -51,11 +51,11 @@ db.knex.schema.hasTable('users').then(function(exists){
       user.increments('id').primary();
       user.string('username', 255).unique();
       user.string('password', 255);
-    }).then(function(table){
+    }).then(function (table){
       console.log('Created Table', table);
     });
   } else {
-    console.log("User already exists");
+    console.log("Table already exists");
   }
 
 });

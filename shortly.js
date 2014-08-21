@@ -3,6 +3,11 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 
+///auth reuires
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+
+
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -22,43 +27,79 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+///auth modules
+app.use(session({
+  secret: 'nyan cat',
+  cooki: {secure: true}
+}));
+app.use(cookieParser('shhhh, very secret'));
 
-app.get('/', 
-function(req, res) {
-  res.render('index');
+var restrict = function(req, res, next){
+  if (req.session.user){
+    next();
+  } else {
+    req.session.error = "Access Denied!";
+    console.log("DENIED")
+    res.redirect(404, '/login'); //get rid of 404
+  }
+};
+  
+app.get('/', function(req, res){
+  restrict(req, res, function(){
+    res.render('index');
+  });
 });
 
-app.get('/create', 
+app.get('/login', 
 function(req, res) {
-  res.render('index');
+  res.render('login');
+});
+
+app.get('/create', function(req, res) {
+  restrict(req, res, function() { 
+    res.render('index');
+  });
 });
 
 app.get('/links', 
 function(req, res) {
-  Links.reset().fetch().then(function(links) {
-    res.send(200, links.models);
+  restrict(req, res, function(){
+    Links.reset().fetch().then(function(links) {
+      res.send(200, links.models);
+    });
   });
 });
 
-app.post('/links', 
-function(req, res) {
+app.get('/logout'),
+  function(req, res){
+    req.session.destroy(function(){
+      res.redirect('/login');
+    });
+  }
+
+
+app.post('/links', function(req, res) {
   var uri = req.body.url;
+  // console.log(req.body.url, "line 82");
+
+  restrict(req, res, function(){
+    console.log('Not a valid url: ', uri);
 
   if (!util.isValidUrl(uri)) {
-    console.log('Not a valid url: ', uri);
     return res.send(404);
   } 
 
   new Link({ url: uri }).fetch().then(function(found) {
     if (found) {
       res.send(200, found.attributes);
+      console.log("FOUND, line 102")
     } else {
       util.getUrlTitle(uri, function(err, title) {
         if (err) {
           console.log('Error reading URL heading: ', err);
           return res.send(404);
         } 
-
+        console.log("ABOUT TO CREATE LINK line 108");
         var link = new Link({
           url: uri,
           title: title,
@@ -71,7 +112,10 @@ function(req, res) {
         });
       });
     }
+  }); 
+  
   });
+
 }); 
 
 /************************************************************/
@@ -80,14 +124,20 @@ function(req, res) {
 
 app.post('/login',
   function(req, res){
+    console.log('logggggiiiiiinnnnnn');
   new User({username:req.body.username, password:req.body.password}).fetch()
     .then(function(found){
       if(found){
-        res.location('/');
-        res.send(req.body);
+        console.log("LOGGED IN");
+        req.session.regenerate(function(){
+          req.session.user = req.body.username;
+          console.log("TOKEN GENERATED", req.session.user);
+          res.location('/');
+          res.send(200);
+          //res.send(req.body);
+        })
       } else {
-        res.location('/login');
-        res.send();
+        res.redirect('/login');
       }
     });
   });

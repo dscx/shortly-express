@@ -20,8 +20,9 @@ var beforeEach = function(){};
 describe('', function() {
 
   beforeEach(function() {
+    console.log('line 24');
     // log out currently signed in user
-    // request('http://127.0.0.1:4568/logout', function(error, res, body) {});
+    request('http://127.0.0.1:4568/logout', function(error, res, body) {});
 
     // delete link for roflzoo from db so it can be created later for the test
     db.knex('urls')
@@ -40,10 +41,10 @@ describe('', function() {
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
       });
 
     // delete user Phillip from db so it can be created later for the test
@@ -52,18 +53,19 @@ describe('', function() {
       .del()
       .catch(function(error) {
         // uncomment when writing authentication tests
-        // throw {
-        //   type: 'DatabaseError',
-        //   message: 'Failed to create test setup data'
-        // };
+        throw {
+          type: 'DatabaseError',
+          message: 'Failed to create test setup data'
+        };
       });
   });
 
-  xdescribe('Link creation:', function(){
+  describe('Link creation:', function(){
 
     var requestWithSession = request.defaults({jar: true});
 
     beforeEach(function(done){      // create a user that we can then log-in with
+      console.log('line 67');
       new User({
           'username': 'Phillip',
           'password': 'Phillip'
@@ -79,6 +81,7 @@ describe('', function() {
         };
         // login via form and save session info
         requestWithSession(options, function(error, res, body) {
+          console.log('line 82');
           done();
         });
       });
@@ -100,7 +103,7 @@ describe('', function() {
       });
     });
 
-    xdescribe('Shortening links:', function(){
+    describe('Shortening links:', function(){
 
       var options = {
         'method': 'POST',
@@ -149,17 +152,19 @@ describe('', function() {
 
     }); // 'Shortening links'
 
-    xdescribe('With previously saved urls:', function(){
+    describe('With previously saved urls:', function(){
 
       var link;
 
       beforeEach(function(done){
         // save a link to the database
+        console.log('brefore each');
         link = new Link({
           url: 'http://www.roflzoo.com/',
           title: 'Rofl Zoo - Daily funny animal pictures',
           base_url: 'http://127.0.0.1:4568'
         });
+          console.log(link, "LINK SAVED");
         link.save().then(function(){
           done();
         });
@@ -171,13 +176,13 @@ describe('', function() {
           'followAllRedirects': true,
           'uri': 'http://127.0.0.1:4568/links',
           'json': {
-            'url': 'http://www.roflzoo.com/'
+            'url': 'http://www.roflzoog.com/'
           }
         };
 
         requestWithSession(options, function(error, res, body) {
           var code = res.body.code;
-          console.log(body, "Spec line 180");
+          console.log(Links.fetch, "spec 186");
           expect(code).to.equal(link.get('code'));
           done();
         });
@@ -213,7 +218,7 @@ describe('', function() {
 
   }); // 'Link creation'
 
-  xdescribe('Priviledged Access:', function(){
+  describe('Priviledged Access:', function(){
 
     it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {
