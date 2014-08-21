@@ -68,7 +68,7 @@ describe('', function() {
           'username': 'Phillip',
           'password': 'Phillip'
       }).save().then(function(model){
-        console.log(model, 'server server spec spec');
+        //console.log(model, 'server server spec spec');
         var options = {
           'method': 'POST',
           'followAllRedirects': true,

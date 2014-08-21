@@ -6,32 +6,30 @@ var User = db.Model.extend({
   tableName: 'users',
 
 initialize: function(){
-  this.on('creating', function(model, attrs, options){
-      // console.log(model, 'userjs line 10');
-    User.generateHash(model.get('password'), function(err, result){
+  this.on('creating', this.generateHash);
 
-    model.set('password', result);
-    console.log(model);
+},
+
+// generating a hash
+generateHash: function() {
+    var crypto = Promise.promisify(bcrypt.hash);
+
+      return crypto(this.get('password'), null, null)
+        .bind(this)
+        .then(function(hash){
+          this.set('password', hash);
+        });
+},
+
+// checking if password is valid
+validPassword: function(pass, hash, cb) {
+
+    bcrypt.compare(this.get('password'), hash, function(err, result){
+      cb(result);
     });
-    // setTimeout( function(){ console.log(model, 'userjs line 15')}, 1000);
-  });
-
 }
 
 });
 
-
-
-// generating a hash
-User.generateHash = function(password, cb) {
-    bcrypt.hash(password, bcrypt.genSaltSync(8), null, cb);
-    // return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
-};
-
-// checking if password is valid
-User.validPassword = function(password, hash) {
-  console.log(hash, "THIS IS THIS IS THIS");
-    return bcrypt.compareSync(password, hash);
-};
 
 module.exports = User;

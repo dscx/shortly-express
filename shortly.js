@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 ///auth reuires
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
+var bcrypt = require('bcrypt-nodejs');
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -71,7 +72,7 @@ app.get('/logout'),
     req.session.destroy(function(){
       res.redirect('/login');
     });
-  }
+  };
 
 
 app.post('/links', function(req, res) {
@@ -120,14 +121,21 @@ app.post('/login',
   new User({username:req.body.username}).fetch()
     .then(function(found){
       if(found){
-        console.log(found);
-         console.log(User.validPassword(req.body.password, found.get('password')));
-        req.session.regenerate(function(){
-          req.session.user = req.body.username;
-          res.location('/');
-          res.send(200);
-          //res.send(req.body);
-        })
+         found.validPassword(req.body.password, found.get('password'), function(){
+            req.session.regenerate(function(){
+              req.session.user = req.body.username;
+              res.location('/');
+              res.send(200);
+            });
+      //bcrypt.compare(req.body.password, found.get('password'), function(){
+
+      //   req.session.regenerate(function(){
+      //     req.session.user = req.body.username;
+      //     res.location('/');
+      //     res.send(200);
+      // })
+        // })
+       });
       } else {
         res.redirect('/login');
       }
