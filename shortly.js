@@ -30,7 +30,6 @@ app.use(express.static(__dirname + '/public'));
 ///auth modules
 app.use(session({
   secret: 'nyan cat',
-  cooki: {secure: true}
 }));
 app.use(cookieParser('shhhh, very secret'));
 
@@ -39,8 +38,7 @@ var restrict = function(req, res, next){
     next();
   } else {
     req.session.error = "Access Denied!";
-    console.log("DENIED")
-    res.redirect(404, '/login'); //get rid of 404
+    res.redirect('/login');
   }
 };
   
@@ -80,8 +78,6 @@ app.get('/logout'),
 
 app.post('/links', function(req, res) {
   var uri = req.body.url;
-  // console.log(req.body.url, "line 82");
-
   restrict(req, res, function(){
     console.log('Not a valid url: ', uri);
 
@@ -92,14 +88,12 @@ app.post('/links', function(req, res) {
   new Link({ url: uri }).fetch().then(function(found) {
     if (found) {
       res.send(200, found.attributes);
-      console.log("FOUND, line 102")
     } else {
       util.getUrlTitle(uri, function(err, title) {
         if (err) {
           console.log('Error reading URL heading: ', err);
           return res.send(404);
         } 
-        console.log("ABOUT TO CREATE LINK line 108");
         var link = new Link({
           url: uri,
           title: title,
@@ -124,14 +118,11 @@ app.post('/links', function(req, res) {
 
 app.post('/login',
   function(req, res){
-    console.log('logggggiiiiiinnnnnn');
   new User({username:req.body.username, password:req.body.password}).fetch()
     .then(function(found){
       if(found){
-        console.log("LOGGED IN");
         req.session.regenerate(function(){
           req.session.user = req.body.username;
-          console.log("TOKEN GENERATED", req.session.user);
           res.location('/');
           res.send(200);
           //res.send(req.body);

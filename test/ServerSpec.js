@@ -13,14 +13,13 @@ var Link = require('../app/models/link');
 // Remove the 'x' from beforeEach block when working on
 // authentication tests.
 /************************************************************/
-var beforeEach = function(){};
+//var beforeEach = function(){};
 /************************************************************/
 
 
 describe('', function() {
 
   beforeEach(function() {
-    console.log('line 24');
     // log out currently signed in user
     request('http://127.0.0.1:4568/logout', function(error, res, body) {});
 
@@ -65,7 +64,6 @@ describe('', function() {
     var requestWithSession = request.defaults({jar: true});
 
     beforeEach(function(done){      // create a user that we can then log-in with
-      console.log('line 67');
       new User({
           'username': 'Phillip',
           'password': 'Phillip'
@@ -81,7 +79,6 @@ describe('', function() {
         };
         // login via form and save session info
         requestWithSession(options, function(error, res, body) {
-          console.log('line 82');
           done();
         });
       });
@@ -158,13 +155,11 @@ describe('', function() {
 
       beforeEach(function(done){
         // save a link to the database
-        console.log('brefore each');
         link = new Link({
           url: 'http://www.roflzoo.com/',
           title: 'Rofl Zoo - Daily funny animal pictures',
           base_url: 'http://127.0.0.1:4568'
         });
-          console.log(link, "LINK SAVED");
         link.save().then(function(){
           done();
         });
@@ -176,13 +171,12 @@ describe('', function() {
           'followAllRedirects': true,
           'uri': 'http://127.0.0.1:4568/links',
           'json': {
-            'url': 'http://www.roflzoog.com/'
+            'url': 'http://www.roflzoo.com/'
           }
         };
 
         requestWithSession(options, function(error, res, body) {
           var code = res.body.code;
-          console.log(Links.fetch, "spec 186");
           expect(code).to.equal(link.get('code'));
           done();
         });
@@ -256,11 +250,9 @@ describe('', function() {
       };
 
       request(options, function(error, res, body) {
-        console.log(res.body[0], 'asdioewufkl');
         db.knex('users')
           .where('username', '=', 'Svnh')
           .then(function(res) {
-            console.log(res, 'knew');
             if (res[0] && res[0]['username']) {
               var user = res[0]['username'];
             }
